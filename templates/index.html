@@ -45,9 +45,10 @@
       </form>
     </div>
     <div class="container">
-        <ul id="navigation">
+        <h2>Your Notes</h2>
+        <ul>
             {% for item in newDocs %}
-            <li><a href="{{ item.href }}">{{ item.note }}</a></li>
+                <li>{{ item.note }}</li>
             {% endfor %}
         </ul>
     </div>

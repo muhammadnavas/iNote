@@ -1,5 +1,4 @@
-from fastapi import APIRouter
-from fastapi import FastAPI, Request
+from fastapi import APIRouter, FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -16,7 +15,7 @@ note.mount("/static", StaticFiles(directory="static"), name="static")
 load_dotenv()
 import os
 MONGODB_URL = os.getenv("MONGODB_URL")
-conn = MongoClient(MONGODB_URL)
+conn = MongoClient(MONGODB_URL,serverSelectionTimeoutMS=5000 )
 templates = Jinja2Templates(directory="templates")
 
 @note.get("/", response_class=HTMLResponse)
@@ -27,13 +26,18 @@ async def read_item(request: Request):
         newDocs.append(
             {
             "id": doc["_id"],
-            "note": doc["note"],
+            "title": str(doc["title"]),
+            "desc": str(doc["desc"]),
+            "important":doc["important"]
         })
     return templates.TemplateResponse(
         request=request, name="index.html", context={"newDocs": newDocs}
     )
     
 @note.post("/")
-async def add_note(note:Note):
-    inserted_note= conn.notes.notes.insert_one(dict(note))
-    return noteEntity(inserted_note)
+async def add_note(request:Request):
+    form=await request.form()
+    formDict=dict(form)
+    formDict["important"]=True if formDict.get("important")=="on" else False
+    inserted_note = conn.notes.notes.insert_one(dict(formDict))
+    return {"Success":True}

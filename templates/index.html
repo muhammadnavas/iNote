@@ -35,21 +35,31 @@
       <form method="post">
         <div class="mb-3">
           <label for="title" class="form-label">Note Name</label>
-          <input type="text" class="form-control" id="title" placeholder="">
+          <input type="text" class="form-control" id="title" name="title" placeholder="">
         </div>
         <div class="mb-3">
-          <label for="note" class="form-label">Enter the Note</label>
-          <textarea class="form-control" id="note" rows="3"></textarea>
+          <label for="desc" class="form-label">Enter the Note</label>
+          <textarea class="form-control" id="desc" name="desc" rows="3"></textarea>
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" id="important" name="important">
+          <label class="form-check-label" for="important">Important</label>
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>
     </div>
     <div class="container">
         <h2>Your Notes</h2>
+        {% if newDocs is defined %}
+        No Notes to Display
+        {%endif%}
         <ul>
-            {% for item in newDocs %}
-                <li>{{ item.note }}</li>
-            {% endfor %}
+          {% for item in newDocs %}
+            <li>
+              <strong>{{ item.title }}</strong>: {{ item.desc }}
+              {% if item.important %}<span class="badge bg-warning text-dark">Important</span>{% endif %}
+            </li>
+          {% endfor %}
         </ul>
     </div>
     

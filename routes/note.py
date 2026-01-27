@@ -1,5 +1,5 @@
 from fastapi import APIRouter, FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from pymongo import MongoClient
@@ -23,13 +23,20 @@ async def read_item(request: Request):
     docs = conn.notes.notes.find({})
     newDocs = []
     for doc in docs:
+        # Ensure 'important' is always boolean for template logic
+        important = doc.get("important", False)
+        if isinstance(important, str):
+            important = important.lower() == "true"
+        elif isinstance(important, int):
+            important = bool(important)
         newDocs.append(
             {
-            "id": doc["_id"],
-            "title": str(doc["title"]),
-            "desc": str(doc["desc"]),
-            "important":doc["important"]
-        })
+                "id": doc["_id"],
+                "title": str(doc["title"]),
+                "desc": str(doc["desc"]),
+                "important": important
+            }
+        )
     return templates.TemplateResponse(
         request=request, name="index.html", context={"newDocs": newDocs}
     )
@@ -38,6 +45,6 @@ async def read_item(request: Request):
 async def add_note(request:Request):
     form=await request.form()
     formDict=dict(form)
-    formDict["important"]=True if formDict.get("important")=="on" else False
-    inserted_note = conn.notes.notes.insert_one(dict(formDict))
-    return {"Success":True}
+    formDict["important"] = True if formDict.get("important") == "on" else False
+    inserted_note = conn.notes.notes.insert_one(formDict)
+    return RedirectResponse(url="/", status_code=303)

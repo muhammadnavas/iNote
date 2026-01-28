@@ -1,1 +1,1 @@
-"# iNote - Note taking app" 
+" iNote - Note taking app" 

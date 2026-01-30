@@ -55,3 +55,14 @@ async def add_note(request:Request):
 def delete_note(id:str):
     conn.notes.notes.delete_one({"_id": ObjectId(id)})
     return {"message": "Note deleted", "note_id": id}
+
+@note.put("/{id}")
+def update_note(id:str,note:Note):
+    update_data = {k: v for k, v in note.dict().items() if v is not None}
+    result = conn.notes.notes.update_one({"_id": ObjectId(id)}, {"$set": update_data})
+    return {
+            "message": "Note updated successfully",
+            "note_id": id,
+        }
+
+    

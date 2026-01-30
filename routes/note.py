@@ -7,6 +7,7 @@ from models.note import Note
 from config.db import conn
 from schemas.note import notesEntity, noteEntity
 import os
+from bson import ObjectId
 from dotenv import load_dotenv
 
 note=APIRouter()
@@ -48,3 +49,9 @@ async def add_note(request:Request):
     formDict["important"] = True if formDict.get("important") == "on" else False
     inserted_note = conn.notes.notes.insert_one(formDict)
     return RedirectResponse(url="/", status_code=303)
+
+
+@note.delete("/{id}")
+def delete_note(id:str):
+    conn.notes.notes.delete_one({"_id": ObjectId(id)})
+    return {"message": "Note deleted", "note_id": id}
